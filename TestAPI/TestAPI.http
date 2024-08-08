@@ -1,0 +1,6 @@
+@TestAPI_HostAddress = http://localhost:7032
+
+GET {{TestAPI_HostAddress}}/getEmployee/
+Accept: application/json
+
+###
