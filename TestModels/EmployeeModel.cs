@@ -10,8 +10,8 @@ namespace TestModels
     {
         public int EID { get; set; }
         public string Name { get; set; }
-        public DateOnly Dob {  get; set; }
+        public DateTime Dob {  get; set; }
         public string Title {  get; set; }
-        public string Tasks { get; set; }
+        public string Task { get; set; }
     }
 }

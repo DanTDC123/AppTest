@@ -1,0 +1,70 @@
+﻿@page "/Task"
+@using TestModels;
+@using Test.Services;
+@inject ITaskServices TaskServices;
+@using System.Data.SqlClient
+@using MudBlazor
+
+<h1>Tasks List</h1>
+
+<MudTable Items="@taskList" Hover="true" Breakpoint="Breakpoint.Sm">
+	<ToolBarContent>
+		<input T="int" @oninput="Search" style="border-style:solid; border-width:2px" />
+	</ToolBarContent>
+	<HeaderContent>
+		<MudTh>TID</MudTh>
+		<MudTh>Name</MudTh>
+		<MudTh>Assignee</MudTh>
+		<MudTh>Action</MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="TID">@context.TID</MudTd>
+		<MudTd DataLabel="Name">@context.Name</MudTd>
+		<MudTd DataLabel="Assignee">@context.Assignee</MudTd>
+		<MudTd DataLabel="Action"><MudButton Color="Color.Primary">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteTask(context.TID))">Delete</MudButton></MudTd>
+	</RowTemplate>
+</MudTable>
+
+@code{
+	private List<TestModels.TaskModel> taskList = new List<TestModels.TaskModel>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetTask();
+	}
+
+	private async Task GetTask()
+	{
+		taskList.Clear();
+		taskList = await TaskServices.GetTask();
+		StateHasChanged();
+	}
+
+	//public async Task UpdateTask()
+
+	public async Task DeleteTask(int id)
+	{
+		await TaskServices.DelTask(id);
+		await GetTask();
+	}
+
+	public async Task GetByID(int id)
+	{
+		taskList.Clear();
+		await TaskServices.GetByID(id);
+		StateHasChanged();
+	}
+	public async void Search(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+	{
+		if (args.Value == "")
+		{
+			await GetTask();
+		}
+		else
+		{
+			var searchTerm = (string)args.Value;
+			await GetByID(int.Parse(searchTerm));
+			StateHasChanged();
+		}
+	}
+}

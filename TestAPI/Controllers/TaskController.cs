@@ -11,13 +11,13 @@ using MySqlConnector;
 
 namespace TestAPI.Controllers
 {
-	[Route("api/Employee")]
+	[Route("api/Task")]
 	[ApiController]
-	public class EmployeeController : ControllerBase
+	public class TaskController : ControllerBase
 	{
 		private readonly IConfiguration _configuration;
 
-		public EmployeeController(IConfiguration configuration)
+		public TaskController(IConfiguration configuration)
 		{
 			_configuration = configuration;
 		}
@@ -30,20 +30,20 @@ namespace TestAPI.Controllers
 		}
 
 		[HttpGet]
-		[Route("getEmployees")]
-		public async Task<IEnumerable<Employee>> getEmployees()
+		[Route("getTasks")]
+		public async Task<IEnumerable<TaskModel>> getTask()
 		{
-			string sql = "SELECT * FROM employee";
+			var sql = "SELECT * FROM task";
 			var con = GetConnection();
-			var _listEmployees = await con.QueryAsync<Employee>(sql);
-			return _listEmployees;
+			var _listTask = await con.QueryAsync<TaskModel>(sql);
+			return _listTask;
 		}
 
 		[HttpDelete]
-		[Route("delEmployees/{id}")]
-		public async Task<bool> delEmployees(int id)
+		[Route("delTasks/{id}")]
+		public async Task<bool> delTask(int id)
 		{
-			var sql = "DELETE FROM employee WHERE EID="+id;
+			var sql = "DELETE FROM task WHERE TID=" + id;
 			var con = GetConnection();
 			await con.QueryAsync(sql);
 			return true;
@@ -51,12 +51,12 @@ namespace TestAPI.Controllers
 
 		[HttpGet]
 		[Route("getByID/{id}")]
-		public async Task<IEnumerable<Employee>> getEmployeeById(int id)
+		public async Task<IEnumerable<TestModels.TaskModel>> getTaskByID(int id)
 		{
-			var sql = "SELECT * FROM employee WHERE EID="+ id;
+			var sql = "SELECT * FROM task WHERE TID=" + id;
 			var con = GetConnection();
-			var _listEmployees = await con.QueryAsync<Employee>(sql);
-			return _listEmployees;
+			var _listTask = await con.QueryAsync<TestModels.TaskModel>(sql);
+			return _listTask;
 		}
 	}
 }

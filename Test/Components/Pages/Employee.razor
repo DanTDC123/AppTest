@@ -1,0 +1,120 @@
+﻿@page "/"
+@using TestModels;
+@using Test.Services;
+@inject IEmployeeServices EmpServices;
+@using System.Data.SqlClient
+
+
+<h1>Employee List</h1>
+<MudPaper>
+	<MudTable Items="@empList" Hover="true" Breakpoint="Breakpoint.Sm">
+		<ToolBarContent>
+			<input T="int" @oninput="Search" style="border-style:solid; border-width:2px"/>
+		</ToolBarContent>
+		<HeaderContent>
+			<MudTh>EID</MudTh>
+			<MudTh>Name</MudTh>
+			<MudTh>Dob</MudTh>
+			<MudTh>Title</MudTh>
+			<MudTh>Task</MudTh>
+			<MudTh>Action</MudTh>
+		</HeaderContent>
+		<RowTemplate>
+			<MudTd DataLabel="EID">@context.EID</MudTd>
+			<MudTd DataLabel="Name">@context.Name</MudTd>
+			<MudTd DataLabel="Dob">@context.Dob</MudTd>
+			<MudTd DataLabel="Title">@context.Title</MudTd>
+			<MudTd DataLabel="Task">@context.Task</MudTd>
+			<MudTd DataLabel="Action"><MudButton Color="Color.Primary" OnClick="@(()=>OpenDialogAsync(context.EID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteEmployee(context.EID))">Delete</MudButton></MudTd>
+		</RowTemplate>
+	</MudTable>
+
+	<MudDialog @bind-Visible="_visible" Options="op">
+		<TitleContent>
+			<MudText Typo="Typo.h6">Update Employee</MudText>
+		</TitleContent>
+		<DialogContent>
+			<EditForm Model="@newEmp">
+				<MudItem>
+					<MudTextField Label="EID" @bind-Value="@newEmp.EID" />
+					<MudTextField Label="Name" @bind-Value="@newEmp.Name" />
+					<MudTextField Label="Dob" @bind-Value="@newEmp.Dob" />
+					<MudTextField Label="Title" @bind-Value="@newEmp.Title" />
+					<MudTextField Label="Task" @bind-Value="@newEmp.Task" />
+
+					<MudButton ButtonType="ButtonType.Submit">Submit</MudButton>
+				</MudItem>
+			</EditForm>
+		</DialogContent>
+		<DialogActions>
+
+		</DialogActions>
+	</MudDialog>
+</MudPaper>
+
+
+
+
+@code{
+	public bool _visible = false;
+	private List<TestModels.Employee> empList = new List<TestModels.Employee>();
+	public TestModels.Employee newEmp = new TestModels.Employee();
+	DialogOptions op = new DialogOptions
+	{
+		CloseOnEscapeKey = true,
+		FullWidth = true,
+		CloseButton = true,
+		BackdropClick = true,
+		Position = DialogPosition.Center,
+		MaxWidth = MaxWidth.ExtraSmall
+	};
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetEmployee();
+	}
+
+	private async Task GetEmployee()
+	{
+		empList.Clear();
+		empList = await EmpServices.GetEmployee();
+		StateHasChanged();
+
+	}
+
+	//public async Task UpdateEmployee()
+
+	public async Task DeleteEmployee(int id)
+	{
+		await EmpServices.DelEmployee(id);
+		await GetEmployee();
+	}
+
+	public async Task<TestModels.Employee> GetByID(int id)
+	{
+		empList.Clear();
+		newEmp = await EmpServices.GetEmployeeByID(id);
+		return newEmp;
+	}
+
+	public async Task Search(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+	{
+		if (args.Value == "")
+		{
+			await GetEmployee();
+		}
+		else
+		{
+			var searchTerm = (string)args.Value;
+			var a = await GetByID(int.Parse(searchTerm));
+			empList.Add(a);
+			StateHasChanged();
+		}
+	}
+
+	private async Task OpenDialogAsync(int id)
+	{
+		newEmp = await EmpServices.GetEmployeeByID(id);
+		_visible = true;
+	}
+}

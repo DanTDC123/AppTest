@@ -18,11 +18,13 @@ namespace Test
 
             builder.Services.AddMauiBlazorWebView();
 			builder.Services.AddMudServices();
-			builder.Services.AddSingleton<EmployeeServices>();
+            builder.Services.AddScoped(sp=> new HttpClient { BaseAddress = new Uri("https://localhost:7288") });
+            builder.Services.AddScoped<IEmployeeServices, EmployeeServices>();
+			builder.Services.AddScoped<ITaskServices, TaskServices>();
 
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+			builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
 
