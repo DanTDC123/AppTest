@@ -51,7 +51,7 @@
 	public async Task GetByID(int id)
 	{
 		taskList.Clear();
-		await TaskServices.GetByID(id);
+		taskList = await TaskServices.GetByID(id);
 		StateHasChanged();
 	}
 	public async void Search(Microsoft.AspNetCore.Components.ChangeEventArgs args)

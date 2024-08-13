@@ -6,6 +6,9 @@ using System.Data.SqlClient;
 using System.Data;
 using Dapper;
 using MySqlConnector;
+using Mysqlx.Crud;
+using System.Collections.Generic;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 
 
@@ -43,7 +46,7 @@ namespace TestAPI.Controllers
 		[Route("delEmployees/{id}")]
 		public async Task<bool> delEmployees(int id)
 		{
-			var sql = "DELETE FROM employee WHERE EID="+id;
+			var sql = "DELETE FROM employee WHERE EID=" + id;
 			var con = GetConnection();
 			await con.QueryAsync(sql);
 			return true;
@@ -53,10 +56,21 @@ namespace TestAPI.Controllers
 		[Route("getByID/{id}")]
 		public async Task<IEnumerable<Employee>> getEmployeeById(int id)
 		{
-			var sql = "SELECT * FROM employee WHERE EID="+ id;
+			var sql = "SELECT * FROM employee WHERE EID=" + id;
 			var con = GetConnection();
 			var _listEmployees = await con.QueryAsync<Employee>(sql);
 			return _listEmployees;
+		}
+
+		[HttpPatch]
+		[Route("updateByID/{id}")]
+		public async Task<bool> updateEmployee(int id, HttpRequest request)
+		{
+			Employee? emp = await request.ReadFromJsonAsync<TestModels.Employee>();
+			var sql = "Update employee SET Name="+ emp.Name +", Dob="+ emp.Dob +", Title="+ emp.Title +", Task="+ emp.Task + " WHERE EID="+id;
+			var con = GetConnection();
+			await con.QueryAsync(sql);
+			return true;
 		}
 	}
 }

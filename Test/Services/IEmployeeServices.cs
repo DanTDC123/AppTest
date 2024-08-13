@@ -13,11 +13,10 @@ namespace Test.Services
 
         Task<bool> DelEmployee(int id);
 
-        Task<TestModels.Employee> GetEmployeeByID(int id);
+        Task<List<TestModels.Employee>> GetEmployeeByID(int id);
 
         //Task<bool> AddEmployee(int id);
 
-        //Task<bool> UpdateEmployee(int id);
-
+        Task UpdateEmployee(Employee emp);
 	}
 }

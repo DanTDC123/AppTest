@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
@@ -28,9 +29,17 @@ namespace Test.Services
             return true;
 		}
 
-        public async Task<TestModels.Employee> GetEmployeeByID(int id)
+        public async Task<List<TestModels.Employee>> GetEmployeeByID(int id)
         {
-            return await _httpClient.GetFromJsonAsync<TestModels.Employee>($"/api/Employee/getByID/{id}");
+            return await _httpClient.GetFromJsonAsync<List<TestModels.Employee>>($"/api/Employee/getByID/{id}");
         }
+
+        public async Task UpdateEmployee(Employee emp)
+        {
+			var id = emp.EID;
+			var json = JsonConvert.SerializeObject(emp);
+			var content = new StringContent(json, Encoding.UTF8, "application/json");
+			var response = await _httpClient.PatchAsync($"/api/Employee/updateByID/{id}", content);
+		}
     }
 }

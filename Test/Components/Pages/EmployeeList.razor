@@ -9,7 +9,12 @@
 <MudPaper>
 	<MudTable Items="@empList" Hover="true" Breakpoint="Breakpoint.Sm">
 		<ToolBarContent>
-			<input T="int" @oninput="Search" style="border-style:solid; border-width:2px"/>
+			<MudGrid Justify="Justify.FlexEnd">
+				<MudItem Style="margin-right: 10px">
+					<MudIcon Icon="@Icons.Material.Filled.Search" />
+				</MudItem>
+				<input T="int" @oninput="Search" style="border-style:solid; border-width:2px; margin-top: 18px"/>
+			</MudGrid>
 		</ToolBarContent>
 		<HeaderContent>
 			<MudTh>EID</MudTh>
@@ -25,29 +30,33 @@
 			<MudTd DataLabel="Dob">@context.Dob</MudTd>
 			<MudTd DataLabel="Title">@context.Title</MudTd>
 			<MudTd DataLabel="Task">@context.Task</MudTd>
-			<MudTd DataLabel="Action"><MudButton Color="Color.Primary" OnClick="@(()=>OpenDialogAsync(context.EID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteEmployee(context.EID))">Delete</MudButton></MudTd>
+			<MudTd DataLabel="Action" Style="align-items:center"><MudButton Color="Color.Primary" OnClick="@(()=>OpenDialogAsync(context.EID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteEmployee(context.EID))">Delete</MudButton></MudTd>
 		</RowTemplate>
 	</MudTable>
 
-	<MudDialog @bind-Visible="_visible" Options="op">
+	<MudDialog>
+		<TitleContent>
+
+		</TitleContent>
+	</MudDialog>
+
+	<MudDialog @bind-Visible="_updateVisible" Options="op">
 		<TitleContent>
 			<MudText Typo="Typo.h6">Update Employee</MudText>
 		</TitleContent>
 		<DialogContent>
 			<EditForm Model="@newEmp">
 				<MudItem>
-					<MudTextField Label="EID" @bind-Value="@newEmp.EID" />
+					<MudTextField Label="EID" @bind-Value="@newEmp.EID" ReadOnly/>
 					<MudTextField Label="Name" @bind-Value="@newEmp.Name" />
 					<MudTextField Label="Dob" @bind-Value="@newEmp.Dob" />
 					<MudTextField Label="Title" @bind-Value="@newEmp.Title" />
 					<MudTextField Label="Task" @bind-Value="@newEmp.Task" />
-
-					<MudButton ButtonType="ButtonType.Submit">Submit</MudButton>
 				</MudItem>
 			</EditForm>
 		</DialogContent>
 		<DialogActions>
-
+			<MudButton ButtonType="ButtonType.Submit" OnClick="()=>UpdateEmployee(newEmp)">Submit</MudButton>
 		</DialogActions>
 	</MudDialog>
 </MudPaper>
@@ -56,8 +65,9 @@
 
 
 @code{
-	public bool _visible = false;
-	private List<TestModels.Employee> empList = new List<TestModels.Employee>();
+	public bool _updateVisible = false;
+	private List<TestModels.Employee> empList = new List<TestModels.Employee>(1000);
+	private List<TestModels.Employee> temp = new List<TestModels.Employee>(1000);
 	public TestModels.Employee newEmp = new TestModels.Employee();
 	DialogOptions op = new DialogOptions
 	{
@@ -82,7 +92,13 @@
 
 	}
 
-	//public async Task UpdateEmployee()
+	public async Task UpdateEmployee(Employee emp)
+	{
+		await EmpServices.UpdateEmployee(emp);
+		_updateVisible = false;
+		await GetEmployee();
+		StateHasChanged();
+	}
 
 	public async Task DeleteEmployee(int id)
 	{
@@ -90,11 +106,11 @@
 		await GetEmployee();
 	}
 
-	public async Task<TestModels.Employee> GetByID(int id)
+	public async Task GetByID(int id)
 	{
 		empList.Clear();
-		newEmp = await EmpServices.GetEmployeeByID(id);
-		return newEmp;
+		empList = await EmpServices.GetEmployeeByID(id);
+		StateHasChanged();
 	}
 
 	public async Task Search(Microsoft.AspNetCore.Components.ChangeEventArgs args)
@@ -106,15 +122,17 @@
 		else
 		{
 			var searchTerm = (string)args.Value;
-			var a = await GetByID(int.Parse(searchTerm));
-			empList.Add(a);
+			await GetByID(int.Parse(searchTerm));
 			StateHasChanged();
 		}
 	}
 
 	private async Task OpenDialogAsync(int id)
 	{
-		newEmp = await EmpServices.GetEmployeeByID(id);
-		_visible = true;
+		temp.Clear();
+		temp = await EmpServices.GetEmployeeByID(id);
+		newEmp = temp[0];
+		_updateVisible = true;
+		StateHasChanged();
 	}
 }

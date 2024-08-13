@@ -73,6 +73,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.71" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
         <PackageReference Include="MudBlazor" Version="7.5.0" />
+        <PackageReference Include="System.Text.Json" Version="8.0.4" />
     </ItemGroup>
 
     <ItemGroup>
