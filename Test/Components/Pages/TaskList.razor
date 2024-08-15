@@ -10,7 +10,7 @@
 
 	<MudTable Items="@taskList" Hover="true" Breakpoint="Breakpoint.Sm" @ref="_table" RowsPerPage="10">
 		<ToolBarContent>
-			<MudButton Color="Color.Secondary" OnClick="OpenAddDialogAsync">Add Task</MudButton>
+			<MudButton Color="Color.Success" OnClick="((e)=>OpenAddDialogAsync())" Style="display:inline-block">Add Task</MudButton>
 			<MudGrid Justify="Justify.FlexEnd">
 				<MudItem Style="margin-right: 10px">
 					<MudIcon Icon="@Icons.Material.Filled.Search" />
@@ -23,6 +23,7 @@
 			<MudTh>Name</MudTh>
 			<MudTh>Assignee</MudTh>
 			<MudTh>Action</MudTh>
+			<MudTh>Assign</MudTh>
 		</HeaderContent>
 		<RowTemplate>
 			<MudTd DataLabel="TID">@context.TID</MudTd>
@@ -164,7 +165,10 @@
 	private async Task OpenAddDialogAsync()
 	{
 		newTask = new TaskModel();
-		newTask.TID = taskList.Max<TaskModel>(t => t.TID) + 1;
+		if (taskList != null)
+		{
+			newTask.TID = taskList.Max<TaskModel>(t => t.TID) + 1;
+		}
 		_addVisible = true;
 		StateHasChanged();
 	}

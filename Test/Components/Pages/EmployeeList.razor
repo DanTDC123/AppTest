@@ -10,7 +10,7 @@
 
 	<MudTable Items="@empList" Hover="true" Breakpoint="Breakpoint.Sm" @ref="_table" RowsPerPage="10">
 		<ToolBarContent>
-			<MudButton Color="Color.Secondary" OnClick="@(()=>OpenAddDialogAsync())">Add Employee</MudButton>
+			<MudButton Color="Color.Success" OnClick="@(()=>OpenAddDialogAsync())" Style="display:inline-block">Add Employee</MudButton>
 			<MudGrid Justify="Justify.FlexEnd">
 				<MudItem Style="margin-right: 10px">
 					<MudIcon Icon="@Icons.Material.Filled.Search" />
@@ -173,7 +173,10 @@
 	public async Task OpenAddDialogAsync()
 	{
 		newEmp = new Employee();
-		newEmp.EID = empList.Max<Employee>(t => t.EID) + 1;
+		if (empList != null)
+		{
+			newEmp.EID = empList.Max<Employee>(t => t.EID) + 1;
+		}
 		_addVisible = true;
 		await Task.Delay(10);
 		StateHasChanged();

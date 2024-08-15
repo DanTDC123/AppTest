@@ -66,7 +66,7 @@ namespace Test.Services
                 request.Content = content;
                 var response = await _httpClient.SendAsync(request);
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
