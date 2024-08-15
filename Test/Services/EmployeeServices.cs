@@ -2,10 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using TestModels;
+
 
 namespace Test.Services
 {
@@ -34,12 +37,38 @@ namespace Test.Services
             return await _httpClient.GetFromJsonAsync<List<TestModels.Employee>>($"/api/Employee/getByID/{id}");
         }
 
-        public async Task UpdateEmployee(Employee emp)
+        public async Task UpEmployee(Employee emp)
         {
-			var id = emp.EID;
-			var json = JsonConvert.SerializeObject(emp);
-			var content = new StringContent(json, Encoding.UTF8, "application/json");
-			var response = await _httpClient.PatchAsync($"/api/Employee/updateByID/{id}", content);
+            try
+            {
+				var id = emp.EID;
+				var json = JsonConvert.SerializeObject(emp);
+				//, Encoding.UTF8, "application/json"
+				var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var request = new HttpRequestMessage(HttpMethod.Put, "/api/Employee/updateByID");
+                request.Content = content;
+				//var response = await _httpClient.PutAsync($"/api/Employee/updateByID", content);
+				var response = await _httpClient.SendAsync(request);
+			}
+            catch (Exception ex)
+            {
+            }	
 		}
+
+        public async Task AddEmployee(Employee emp)
+        {
+            try
+            {
+                var id = emp.EID;
+                var json = JsonConvert.SerializeObject(emp);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var request = new HttpRequestMessage(HttpMethod.Post, "/api/Employee/addEmployee");
+                request.Content = content;
+                var response = await _httpClient.SendAsync(request);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
     }
 }

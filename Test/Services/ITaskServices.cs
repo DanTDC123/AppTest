@@ -14,5 +14,9 @@ namespace Test.Services
 		Task<bool> DelTask(int id);
 
         Task<List<TestModels.TaskModel>> GetByID(int id);
-    }
+
+		Task UpTask(TestModels.TaskModel task);
+
+		Task AddTask(TestModels.TaskModel task);
+	}
 }

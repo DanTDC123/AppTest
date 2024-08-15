@@ -17,6 +17,8 @@ namespace Test.Services
 
         //Task<bool> AddEmployee(int id);
 
-        Task UpdateEmployee(Employee emp);
+        Task UpEmployee(Employee emp);
+
+        Task AddEmployee(Employee emp);
 	}
 }

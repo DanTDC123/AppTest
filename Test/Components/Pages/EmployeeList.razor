@@ -5,15 +5,17 @@
 @using System.Data.SqlClient
 
 
-<h1>Employee List</h1>
 <MudPaper>
-	<MudTable Items="@empList" Hover="true" Breakpoint="Breakpoint.Sm">
+	<h1 style="justify-items:center">Employee List</h1>
+
+	<MudTable Items="@empList" Hover="true" Breakpoint="Breakpoint.Sm" @ref="_table" RowsPerPage="10">
 		<ToolBarContent>
+			<MudButton Color="Color.Secondary" OnClick="@(()=>OpenAddDialogAsync())">Add Employee</MudButton>
 			<MudGrid Justify="Justify.FlexEnd">
 				<MudItem Style="margin-right: 10px">
 					<MudIcon Icon="@Icons.Material.Filled.Search" />
 				</MudItem>
-				<input T="int" @oninput="Search" style="border-style:solid; border-width:2px; margin-top: 18px"/>
+				<input T="int" @oninput="Search" style="border-style:solid; border-width:2px; margin-top: 18px" />
 			</MudGrid>
 		</ToolBarContent>
 		<HeaderContent>
@@ -30,14 +32,31 @@
 			<MudTd DataLabel="Dob">@context.Dob</MudTd>
 			<MudTd DataLabel="Title">@context.Title</MudTd>
 			<MudTd DataLabel="Task">@context.Task</MudTd>
-			<MudTd DataLabel="Action" Style="align-items:center"><MudButton Color="Color.Primary" OnClick="@(()=>OpenDialogAsync(context.EID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteEmployee(context.EID))">Delete</MudButton></MudTd>
+			<MudTd DataLabel="Action" Style="align-items:center"><MudButton Color="Color.Primary" OnClick="@(()=>OpenUpdateDialogAsync(context.EID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteEmployee(context.EID))">Delete</MudButton></MudTd>
 		</RowTemplate>
+		<PagerContent>
+			<MudPagination SelectedChanged="PageChanged" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)" Class="pa-4" />
+		</PagerContent>
 	</MudTable>
 
-	<MudDialog>
+	<MudDialog @bind-Visible="_addVisible" Options="op">
 		<TitleContent>
-
+			<MudText Typo="Typo.h6">Add Employee</MudText>
 		</TitleContent>
+		<DialogContent>
+			<EditForm Model="@newEmp">
+				<MudItem>
+					<MudTextField Label="EID" @bind-Value="@newEmp.EID" />
+					<MudTextField Label="Name" @bind-Value="@newEmp.Name" />
+					<MudTextField Label="Dob" @bind-Value="@newEmp.Dob" />
+					<MudTextField Label="Title" @bind-Value="@newEmp.Title" />
+					<MudTextField Label="Task" @bind-Value="@newEmp.Task" />
+				</MudItem>
+			</EditForm>
+		</DialogContent>
+		<DialogActions>
+			<MudButton ButtonType="ButtonType.Submit" OnClick="()=>AddEmployee(newEmp)">Add</MudButton>
+		</DialogActions>
 	</MudDialog>
 
 	<MudDialog @bind-Visible="_updateVisible" Options="op">
@@ -47,7 +66,7 @@
 		<DialogContent>
 			<EditForm Model="@newEmp">
 				<MudItem>
-					<MudTextField Label="EID" @bind-Value="@newEmp.EID" ReadOnly/>
+					<MudTextField Label="EID" @bind-Value="@newEmp.EID" ReadOnly />
 					<MudTextField Label="Name" @bind-Value="@newEmp.Name" />
 					<MudTextField Label="Dob" @bind-Value="@newEmp.Dob" />
 					<MudTextField Label="Title" @bind-Value="@newEmp.Title" />
@@ -59,12 +78,14 @@
 			<MudButton ButtonType="ButtonType.Submit" OnClick="()=>UpdateEmployee(newEmp)">Submit</MudButton>
 		</DialogActions>
 	</MudDialog>
-</MudPaper>
+</MudPaper>	
 
 
 
 
 @code{
+	private MudTable<Employee> _table;
+	public bool _addVisible = false;
 	public bool _updateVisible = false;
 	private List<TestModels.Employee> empList = new List<TestModels.Employee>(1000);
 	private List<TestModels.Employee> temp = new List<TestModels.Employee>(1000);
@@ -78,6 +99,11 @@
 		Position = DialogPosition.Center,
 		MaxWidth = MaxWidth.ExtraSmall
 	};
+
+	private void PageChanged(int i)
+	{
+		_table.NavigateTo(i - 1);
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -94,7 +120,7 @@
 
 	public async Task UpdateEmployee(Employee emp)
 	{
-		await EmpServices.UpdateEmployee(emp);
+		await EmpServices.UpEmployee(emp);
 		_updateVisible = false;
 		await GetEmployee();
 		StateHasChanged();
@@ -127,12 +153,29 @@
 		}
 	}
 
-	private async Task OpenDialogAsync(int id)
+	public async Task AddEmployee(Employee emp)
+	{
+		await EmpServices.AddEmployee(emp);
+		_addVisible = false;
+		await GetEmployee();
+		StateHasChanged();
+	}
+
+	private async Task OpenUpdateDialogAsync(int id)
 	{
 		temp.Clear();
 		temp = await EmpServices.GetEmployeeByID(id);
 		newEmp = temp[0];
 		_updateVisible = true;
+		StateHasChanged();
+	}
+
+	public async Task OpenAddDialogAsync()
+	{
+		newEmp = new Employee();
+		newEmp.EID = empList.Max<Employee>(t => t.EID) + 1;
+		_addVisible = true;
+		await Task.Delay(10);
 		StateHasChanged();
 	}
 }

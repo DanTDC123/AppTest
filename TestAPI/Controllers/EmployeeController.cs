@@ -9,6 +9,7 @@ using MySqlConnector;
 using Mysqlx.Crud;
 using System.Collections.Generic;
 using Org.BouncyCastle.Asn1.Ocsp;
+using Newtonsoft.Json;
 
 
 
@@ -62,12 +63,21 @@ namespace TestAPI.Controllers
 			return _listEmployees;
 		}
 
-		[HttpPatch]
-		[Route("updateByID/{id}")]
-		public async Task<bool> updateEmployee(int id, HttpRequest request)
+		[HttpPut]
+		[Route("updateByID")]
+		public async Task<bool> updateEmployee([FromBody] Employee emp)
 		{
-			Employee? emp = await request.ReadFromJsonAsync<TestModels.Employee>();
-			var sql = "Update employee SET Name="+ emp.Name +", Dob="+ emp.Dob +", Title="+ emp.Title +", Task="+ emp.Task + " WHERE EID="+id;
+			var sql = "UPDATE employee SET Name='" + emp.Name + "', Dob='" + emp.Dob + "', Title='" + emp.Title + "', Task='" + emp.Task + "' WHERE EID=" + emp.EID;
+			var con = GetConnection();
+			await con.QueryAsync(sql);
+			return true;
+		}
+
+		[HttpPost]
+		[Route("addEmployee")]
+		public async Task<bool> addEmployee([FromBody] Employee emp)
+		{
+			var sql = "Insert into employee VALUES (" + emp.EID + ", '" + emp.Name + "', '" + emp.Dob + "', '" + emp.Title + "', '" + emp.Task + "');";
 			var con = GetConnection();
 			await con.QueryAsync(sql);
 			return true;

@@ -58,5 +58,25 @@ namespace TestAPI.Controllers
 			var _listTask = await con.QueryAsync<TestModels.TaskModel>(sql);
 			return _listTask;
 		}
+
+		[HttpPut]
+		[Route("updateByID")]
+		public async Task<bool> updateTask([FromBody] TestModels.TaskModel task)
+		{
+			var sql = "UPDATE task SET Name='" + task.Name + "', Assignee='" + task.Assignee + "' WHERE TID=" + task.TID;
+			var con = GetConnection();
+			await con.QueryAsync(sql);
+			return true;
+		}
+
+		[HttpPost]
+		[Route("addTask")]
+		public async Task<bool> addTask([FromBody] TestModels.TaskModel task)
+		{
+			var sql = "Insert into task VALUES (" + task.TID + ", '" + task.Name + "', '" + task.Assignee + "');";
+			var con = GetConnection();
+			await con.QueryAsync(sql);
+			return true;
+		}
 	}
 }

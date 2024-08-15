@@ -10,7 +10,7 @@ namespace TestModels
     {
         public int EID { get; set; }
         public string Name { get; set; }
-        public DateTime Dob {  get; set; }
+        public string Dob {  get; set; }
         public string Title {  get; set; }
         public string Task { get; set; }
     }
