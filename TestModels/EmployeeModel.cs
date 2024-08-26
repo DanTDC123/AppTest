@@ -12,7 +12,6 @@ namespace TestModels
         public string Name { get; set; }
         public string Dob {  get; set; }
         public string Title {  get; set; }
-
         public string Task { get; set; }
     }
 }

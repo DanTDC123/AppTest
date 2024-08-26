@@ -10,6 +10,6 @@ namespace TestModels
 	{
 		public int TID { get; set; }
 		public string Name { get; set; }
-		public string Assignee{ get; set; }
+		public int Assignee{ get; set; }
 	}
 }

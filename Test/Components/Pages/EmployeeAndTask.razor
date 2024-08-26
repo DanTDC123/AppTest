@@ -1,15 +1,13 @@
-﻿@page "/"
+﻿@page "/EAT"
 @using TestModels;
 @using Test.Services;
 @inject IEmployeeServices _empServices;
 @using System.Data.SqlClient
 @inject ISnackbar Snackbar
 
-
 <MudGrid Class="d-flex" xs="12 py-8" Justify="Justify.Center" Style="margin-top: 10px">
-	<MudPaper MaxWidth="MaxWidth">
+	<MudPaper>
 		<MudText Typo="Typo.h3" Style="align-content: center; display: flex">Employee List</MudText>
-
 		<MudTable Items="@empList" Hover="true" Breakpoint="Breakpoint.Sm" @ref="_table" RowsPerPage="10">
 			<ToolBarContent>
 				<MudButton Color="Color.Success" OnClick="@(()=>OpenAddDialogAsync())" Style="display:inline-block">Add Employee</MudButton>
@@ -25,6 +23,7 @@
 				<MudTh>Name</MudTh>
 				<MudTh>Dob</MudTh>
 				<MudTh>Title</MudTh>
+				<MudTh>Task</MudTh>
 				<MudTh>Action</MudTh>
 			</HeaderContent>
 			<RowTemplate>
@@ -32,6 +31,7 @@
 				<MudTd DataLabel="Name">@context.Name</MudTd>
 				<MudTd DataLabel="Dob">@context.Dob</MudTd>
 				<MudTd DataLabel="Title">@context.Title</MudTd>
+				<MudTd DataLabel="Task">@context.Task</MudTd>
 				<MudTd DataLabel="Action" Style="align-items:center"><MudButton Color="Color.Primary" OnClick="@(()=>OpenUpdateDialogAsync(context.EID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteEmployee(context.EID))">Delete</MudButton></MudTd>
 			</RowTemplate>
 			<PagerContent>
@@ -50,6 +50,7 @@
 						<MudTextField Label="Name" @bind-Value="@newEmp.Name" />
 						<MudTextField Label="Dob" @bind-Value="@newEmp.Dob" />
 						<MudTextField Label="Title" @bind-Value="@newEmp.Title" />
+						<MudTextField Label="Task" @bind-Value="@newEmp.Task" />
 					</MudItem>
 				</EditForm>
 			</DialogContent>
@@ -69,6 +70,7 @@
 						<MudTextField Label="Name" @bind-Value="@newEmp.Name" />
 						<MudTextField Label="Dob" @bind-Value="@newEmp.Dob" />
 						<MudTextField Label="Title" @bind-Value="@newEmp.Title" />
+						<MudTextField Label="Task" @bind-Value="@newEmp.Task" />
 					</MudItem>
 				</EditForm>
 			</DialogContent>
@@ -76,12 +78,12 @@
 				<MudButton ButtonType="ButtonType.Submit" OnClick="()=>UpdateEmployee(newEmp)">Submit</MudButton>
 			</DialogActions>
 		</MudDialog>
-	</MudPaper>
+	</MudPaper>	
 </MudGrid>
 
 
 
-@code {
+@code{
 	private MudTable<Employee> _table;
 	public bool _addVisible = false;
 	public bool _updateVisible = false;
@@ -89,14 +91,14 @@
 	private List<TestModels.Employee> temp = new List<TestModels.Employee>(1000);
 	public TestModels.Employee newEmp = new TestModels.Employee();
 	DialogOptions op = new DialogOptions
-		{
-			CloseOnEscapeKey = true,
-			FullWidth = true,
-			CloseButton = true,
-			BackdropClick = true,
-			Position = DialogPosition.Center,
-			MaxWidth = MaxWidth.ExtraSmall
-		};
+	{
+		CloseOnEscapeKey = true,
+		FullWidth = true,
+		CloseButton = true,
+		BackdropClick = true,
+		Position = DialogPosition.Center,
+		MaxWidth = MaxWidth.ExtraSmall
+	};
 
 	private void PageChanged(int i)
 	{
@@ -112,7 +114,7 @@
 	private async Task GetEmployee()
 	{
 		empList.Clear();
-		empList = await _empServices.GetEmployee();
+		empList = await _empServices.GetEAT();
 		StateHasChanged();
 	}
 
@@ -177,8 +179,7 @@
 		if (empList.Count != 0)
 		{
 			newEmp.EID = empList.Max<Employee>(t => t.EID) + 1;
-		}
-		else
+		} else
 		{
 			newEmp.EID = 1;
 		}

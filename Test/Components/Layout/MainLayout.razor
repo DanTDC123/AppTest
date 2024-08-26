@@ -8,11 +8,11 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudNavMenu Color="Color.Info">
+    <MudAppBar Color="Color.Info" Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         TestApp
-    </MudNavMenu>
-    <MudDrawer @bind-Open="@_drawerOpen" Color="Color.Info">
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen" Color="Color.Info" ClipMode="@DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Responsive" Overlay="true">
         <NavMenu/>
     </MudDrawer>
     <MudMainContent>
@@ -23,7 +23,7 @@
 </MudLayout>
 
 @code {
-    bool _drawerOpen = true;
+    bool _drawerOpen = false;
 
     void DrawerToggle()
     {

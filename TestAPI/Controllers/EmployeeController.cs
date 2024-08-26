@@ -43,6 +43,16 @@ namespace TestAPI.Controllers
 			return _listEmployees;
 		}
 
+		[HttpGet]
+		[Route("getEAT")]
+		public async Task<IEnumerable<Employee>> getEAT()
+		{
+			string sql = "SELECT E.EID, E.Name, E.Dob, E.Title, T.Name as Task FROM task T JOIN employee E ON E.EID = T.Assignee";
+			var con = GetConnection();
+			var _listEmployees = await con.QueryAsync<Employee>(sql);
+			return _listEmployees;
+		}
+
 		[HttpDelete]
 		[Route("delEmployees/{id}")]
 		public async Task<bool> delEmployees(int id)

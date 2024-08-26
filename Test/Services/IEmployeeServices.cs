@@ -11,6 +11,7 @@ namespace Test.Services
     {
         Task<List<Employee>> GetEmployee();
 
+        Task<List<Employee>> GetEAT();
         Task<bool> DelEmployee(int id);
 
         Task<List<TestModels.Employee>> GetEmployeeByID(int id);

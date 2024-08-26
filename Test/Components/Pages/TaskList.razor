@@ -2,88 +2,103 @@
 @using TestModels;
 @using Test.Services;
 @inject ITaskServices TaskServices;
+@inject IEmployeeServices _empServices;
 @using System.Data.SqlClient
 @using MudBlazor
+@inject ISnackbar Snackbar
 
-<MudPaper>
-	<h1 style="align-items: center">Tasks List</h1>
+<MudGrid Class="d-flex" xs="12 py-8" Justify="Justify.Center" Style="margin-top: 10px">
+	<MudPaper MaxWidth="MaxWidth">
+		<MudText Typo="Typo.h3" Style="align-content: center; display: flex">Tasks List</MudText>
+		<MudTable Items="@taskList" Hover="true" Breakpoint="Breakpoint.Sm" @ref="_table" RowsPerPage="10" Style="margin-top: 10px">
+			<ToolBarContent>
+				<MudButton Color="Color.Success" OnClick="((e)=>OpenAddDialogAsync())" Style="display:inline-block">Add Task</MudButton>
+				<MudGrid Justify="Justify.FlexEnd">
+					<MudItem Style="margin-right: 10px">
 
-	<MudTable Items="@taskList" Hover="true" Breakpoint="Breakpoint.Sm" @ref="_table" RowsPerPage="10">
-		<ToolBarContent>
-			<MudButton Color="Color.Success" OnClick="((e)=>OpenAddDialogAsync())" Style="display:inline-block">Add Task</MudButton>
-			<MudGrid Justify="Justify.FlexEnd">
-				<MudItem Style="margin-right: 10px">
-					<MudIcon Icon="@Icons.Material.Filled.Search" />
-				</MudItem>
-				<input T="int" @oninput="Search" style="border-style:solid; border-width:2px; margin-top: 18px" />
-			</MudGrid>
-		</ToolBarContent>
-		<HeaderContent>
-			<MudTh>TID</MudTh>
-			<MudTh>Name</MudTh>
-			<MudTh>Assignee</MudTh>
-			<MudTh>Action</MudTh>
-			<MudTh>Assign</MudTh>
-		</HeaderContent>
-		<RowTemplate>
-			<MudTd DataLabel="TID">@context.TID</MudTd>
-			<MudTd DataLabel="Name">@context.Name</MudTd>
-			<MudTd DataLabel="Assignee">@context.Assignee</MudTd>
-			<MudTd DataLabel="Action"><MudButton Color="Color.Primary" OnClick="@(()=>OpenUpdateDialogAsync(context.TID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteTask(context.TID))">Delete</MudButton></MudTd>
-		</RowTemplate>
-		<PagerContent>
-			<MudPagination SelectedChanged="PageChanged" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)" Class="pa-4" />
-		</PagerContent>
-	</MudTable>
 
-	<MudDialog @bind-Visible="_addVisible" Options="op">
-		<TitleContent>
-			<MudText Typo="Typo.h6">Add Task</MudText>
-		</TitleContent>
-		<DialogContent>
-			<EditForm Model="@newTask">
-				<MudItem>
-					<MudTextField Label="TID" @bind-Value="@newTask.TID" />
-					<MudTextField Label="Name" @bind-Value="@newTask.Name" />
-					<MudTextField Label="Assignee" @bind-Value="@newTask.Assignee" />
-				</MudItem>
-			</EditForm>
-		</DialogContent>
-		<DialogActions>
-			<MudButton ButtonType="ButtonType.Submit" OnClick="()=>AddTask(newTask)">Submit</MudButton>
-		</DialogActions>
-	</MudDialog>
 
-	<MudDialog @bind-Visible="_updateVisible" Options="op">
-		<TitleContent>
-			<MudText Typo="Typo.h6">Update Task</MudText>
-		</TitleContent>
-		<DialogContent>
-			<EditForm Model="@newTask">
-				<MudItem>
-					<MudTextField Label="TID" @bind-Value="@newTask.TID" ReadOnly />
-					<MudTextField Label="Name" @bind-Value="@newTask.Name" />
-					<MudTextField Label="Assignee" @bind-Value="@newTask.Assignee" />
-				</MudItem>
-			</EditForm>
-		</DialogContent>
-		<DialogActions>
-			<MudButton ButtonType="ButtonType.Submit" OnClick="()=>UpdateTask(newTask)">Submit</MudButton>
-		</DialogActions>
-	</MudDialog>
-</MudPaper>
 
+						<MudIcon Icon="@Icons.Material.Filled.Search" />
+					</MudItem>
+					<input T="int" @oninput="Search" style="border-style:solid; border-width:2px; margin-top: 18px" />
+				</MudGrid>
+			</ToolBarContent>
+			<HeaderContent>
+				<MudTh>TID</MudTh>
+				<MudTh>Name</MudTh>
+				<MudTh>Assignee</MudTh>
+				<MudTh>Action</MudTh>
+				<MudTh>Assign</MudTh>
+			</HeaderContent>
+			<RowTemplate>
+				<MudTd DataLabel="TID">@context.TID</MudTd>
+				<MudTd DataLabel="Name">@context.Name</MudTd>
+				<MudTd DataLabel="Assignee">@findName(context.Assignee)</MudTd>
+				<MudTd DataLabel="Action"><MudButton Color="Color.Primary" OnClick="@(()=>OpenUpdateDialogAsync(context.TID))">Update</MudButton>|<MudButton Color="Color.Error" OnClick="@(()=>DeleteTask(context.TID))">Delete</MudButton></MudTd>
+				<MudTd DataLabel="Assign">
+					<MudSelect T="int" Variant="Variant.Filled" @bind-Value="value" OnClose="(()=>{context.Assignee = value;UpdateTask(context);})" MaxLength="50">
+						@foreach (Employee emp in empList) {
+						<MudSelectItem Value="@emp.EID">@emp.EID  |  @emp.Name</MudSelectItem>
+						}
+					</MudSelect>
+				</MudTd>
+			</RowTemplate>
+			<PagerContent>
+				<MudPagination SelectedChanged="PageChanged" Count="@((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)" Class="pa-4" />
+			</PagerContent>
+		</MudTable>
+
+		<MudDialog @bind-Visible="_addVisible" Options="op">
+			<TitleContent>
+				<MudText Typo="Typo.h6">Add Task</MudText>
+			</TitleContent>
+			<DialogContent>
+				<EditForm Model="@newTask">
+					<MudItem>
+						<MudTextField Label="TID" @bind-Value="@newTask.TID" />
+						<MudTextField Label="Name" @bind-Value="@newTask.Name" />
+					</MudItem>
+				</EditForm>
+			</DialogContent>
+			<DialogActions>
+				<MudButton ButtonType="ButtonType.Submit" OnClick="()=>AddTask(newTask)">Submit</MudButton>
+			</DialogActions>
+		</MudDialog>
+
+		<MudDialog @bind-Visible="_updateVisible" Options="op">
+			<TitleContent>
+				<MudText Typo="Typo.h6">Update Task</MudText>
+			</TitleContent>
+			<DialogContent>
+				<EditForm Model="@newTask">
+					<MudItem>
+						<MudTextField Label="TID" @bind-Value="@newTask.TID" />
+						<MudTextField Label="Name" @bind-Value="@newTask.Name" />
+						<MudTextField Label="Assignee" @bind-Value="@newTask.Assignee" />
+					</MudItem>
+				</EditForm>
+			</DialogContent>
+			<DialogActions>
+				<MudButton ButtonType="ButtonType.Submit" OnClick="()=>UpdateTask(newTask)">Submit</MudButton>
+			</DialogActions>
+		</MudDialog>
+	</MudPaper>
+</MudGrid>
 
 @code{
+
 	private MudTable<TaskModel> _table;
 	public bool _addVisible = false;
 	public bool _updateVisible = false;
 	private List<TestModels.TaskModel> temp = new List<TestModels.TaskModel>(1000);
 	public TestModels.TaskModel newTask = new TestModels.TaskModel();
 	private List<TestModels.TaskModel> taskList = new List<TestModels.TaskModel>();
-
+	private List<TestModels.Employee> empList = new List<TestModels.Employee>();
+	public int value { get; set; } = new int();
 	protected override async Task OnInitializedAsync()
 	{
+		await GetEmployee();
 		await GetTask();
 	}
 
@@ -97,9 +112,30 @@
 			MaxWidth = MaxWidth.ExtraSmall
 		};
 
+	private string findName(int id)
+	{
+		if (id > 0)
+		{
+			TestModels.Employee person = empList.Find(o => o.EID == id);
+			var name = person.Name;
+			return name;
+		}
+		else
+		{
+			return "";
+		}
+	}
+
 	private void PageChanged(int i)
 	{
 		_table.NavigateTo(i - 1);
+	}
+
+	private async Task GetEmployee()
+	{
+		empList.Clear();
+		empList = await _empServices.GetEmployee();
+		StateHasChanged();
 	}
 
 	private async Task GetTask()
@@ -113,6 +149,8 @@
 	{
 		await TaskServices.UpTask(task);
 		_updateVisible = false;
+
+		Snackbar.Add("Task Updated");
 		await GetTask();
 		StateHasChanged();
 	}
@@ -122,7 +160,9 @@
 	public async Task DeleteTask(int id)
 	{
 		await TaskServices.DelTask(id);
+		Snackbar.Add("Task Deleted");
 		await GetTask();
+		StateHasChanged();
 	}
 
 	public async Task GetByID(int id)
@@ -148,6 +188,7 @@
 	public async Task AddTask(TaskModel task)
 	{
 		await TaskServices.AddTask(task);
+		Snackbar.Add("Task Created");
 		_addVisible = false;
 		await GetTask();
 		StateHasChanged();
@@ -165,10 +206,14 @@
 	private async Task OpenAddDialogAsync()
 	{
 		newTask = new TaskModel();
-		if (taskList != null)
+		if (taskList.Count != 0)
 		{
 			newTask.TID = taskList.Max<TaskModel>(t => t.TID) + 1;
+		} else
+		{
+			newTask.TID = 1;
 		}
+		await Task.Delay(10);
 		_addVisible = true;
 		StateHasChanged();
 	}

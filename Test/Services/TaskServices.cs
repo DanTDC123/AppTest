@@ -2,10 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using TestModels;
+using System.Web;
+using System.Web.Http;
 
 namespace Test.Services
 {
@@ -20,18 +25,57 @@ namespace Test.Services
 
 		public async Task<List<TaskModel>> GetTask()
 		{
-			return await _httpClient.GetFromJsonAsync<List<TaskModel>>("/api/Task/getTasks");
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<List<TaskModel>>("/api/Task/getTasks");
+				if (response == null)
+				{
+					throw new HttpResponseException(HttpStatusCode.BadGateway);
+				}
+				else if (!response.Equals(new List<Employee>()))
+				{
+					throw new HttpResponseException(HttpStatusCode.InternalServerError);
+				}
+				return response;
+			}
+			catch { return null; }
 		}
 
 		public async Task<bool> DelTask(int id)
 		{
-			await _httpClient.DeleteAsync($"/api/Task/delTasks/{id}");
-			return true;
+			try
+			{
+				var response = await _httpClient.DeleteAsync($"/api/Task/delTasks/{id}");
+				if (response.StatusCode == HttpStatusCode.BadGateway)
+				{
+					return false;
+					throw new HttpResponseException(HttpStatusCode.BadGateway);
+				}
+				else if (response.StatusCode == HttpStatusCode.InternalServerError)
+				{
+					return false;
+					throw new HttpResponseException(HttpStatusCode.InternalServerError);
+				}
+				return true;
+			} catch { return false; }
 		}
 
 		public async Task<List<TestModels.TaskModel>> GetByID(int id)
 		{
-			return await _httpClient.GetFromJsonAsync<List<TestModels.TaskModel>>($"/api/Task/getByID/{id}");
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<List<TestModels.TaskModel>>($"/api/Task/getByID/{id}");
+				if (response == null)
+				{
+					throw new HttpResponseException(HttpStatusCode.BadGateway);
+				}
+				else if (!response.Equals(new List<Employee>()))
+				{
+					throw new HttpResponseException(HttpStatusCode.InternalServerError);
+				}
+				return response;
+			}
+			catch { return null; }
 		}
 
 		public async Task UpTask(TestModels.TaskModel task)
@@ -46,6 +90,14 @@ namespace Test.Services
 				request.Content = content;
 				//var response = await _httpClient.PutAsync($"/api/Employee/updateByID", content);
 				var response = await _httpClient.SendAsync(request);
+				if (response.StatusCode == HttpStatusCode.BadGateway)
+				{
+					throw new HttpResponseException(HttpStatusCode.BadGateway);
+				}
+				else if (response.StatusCode == HttpStatusCode.InternalServerError)
+				{
+					throw new HttpResponseException(HttpStatusCode.InternalServerError);
+				}
 			}
 			catch
 			{
@@ -62,6 +114,14 @@ namespace Test.Services
 				var request = new HttpRequestMessage(HttpMethod.Post, "api/Task/addTask");
 				request.Content = content;
 				var response = await _httpClient.SendAsync(request);
+				if (response.StatusCode == HttpStatusCode.BadGateway)
+				{
+					throw new HttpResponseException(HttpStatusCode.BadGateway);
+				}
+				else if (response.StatusCode == HttpStatusCode.InternalServerError)
+				{
+					throw new HttpResponseException(HttpStatusCode.InternalServerError);
+				}
 			}
 			catch (Exception ex) { }
 		}
